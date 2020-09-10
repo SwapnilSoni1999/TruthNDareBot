@@ -29,6 +29,11 @@ const stage = new Stage([startGame])
 bot.use(session())
 bot.use(stage.middleware())
 
+bot.command('id', async (ctx) => {
+    const chatId = ctx.chat.id
+    ctx.reply(`This chat id is ${chatId} and this is a ${String(chatId).startsWith('-') ? 'group' : 'personal chat.'}`)
+})
+
 bot.start((ctx) => {
     ctx.scene.enter('start-game')
 })
