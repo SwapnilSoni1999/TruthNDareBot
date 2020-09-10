@@ -3,6 +3,7 @@ const { default: Telegraf } = require('telegraf')
 const session = require('telegraf/session')
 const WizardScene = require('telegraf/scenes/wizard')
 const Stage = require('telegraf/stage')
+const { catch } = require('telegraf/scenes/wizard')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
@@ -54,12 +55,24 @@ function genRandom() {
 }
 
 bot.command('/spin', async (ctx) => {
-    const p1 = names[genRandom()]
-    const p2 = names[genRandom()]
-    if (p1 == p2) {
-        p2 = names[genRandom()]
+    if (!gameRunningFor || gameRunningFor == '') {
+        return ctx.reply('Game is not running please start with /start')
     }
-    await ctx.reply(`${p1} -> ${p2}`)
+    if (gameRunningFor == ctx.chat.id) {
+        const p1 = names[genRandom()]
+        let p2 = names[genRandom()]
+        if (p1 == p2) {
+            p2 = names[genRandom()]
+        }
+        const message = await ctx.reply(`${p1} -> ${p2}`)
+        try {
+            await ctx.pinChatMessage(message.message_id)
+        } catch(err) {
+            await ctx.reply("im not admin i guess")
+        }
+    } else {
+        await ctx.reply('Game is not running for your chat.')
+    }
 })
 
 bot.command('/names', async (ctx) => {
@@ -80,7 +93,7 @@ bot.command('/add', async (ctx) => {
         if (names.find(v => v == name)) {
             return await ctx.reply('Name ' + name + ' is already added in list.\n' + names.join('\n'))
         }
-        names.push(name)
+        names.push(name.trim())
         await ctx.reply('Added ' + name + ' to list. Now list is\n' + names.join('\n'))
         // names.push()
     } else {
