@@ -3,7 +3,6 @@ const { default: Telegraf } = require('telegraf')
 const session = require('telegraf/session')
 const WizardScene = require('telegraf/scenes/wizard')
 const Stage = require('telegraf/stage')
-const { catch } = require('telegraf/scenes/wizard')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
@@ -106,7 +105,7 @@ bot.command('/remove', async (ctx) => {
     const foundName = names.find(v => v == name)
     if (foundName) {
         const index = names.findIndex(v => v == name)
-        names.pop(index)
+        names.splice(index, 1)
         await ctx.reply('Removed '+ name +' from list.\n' + names.join('\n'))
     }
     else {
